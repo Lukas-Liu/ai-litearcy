@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Literacy Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an atlas. A rotatable sphere holds every component of every framework; choosing assumptions collapses it onto a plane centered on one context. Perspectives and a shared board sit on either side. */
+:root{
+  --bg:#F3F4F0; --surface:#FFFFFF; --sunk:#E9EBE5; --line:#D6DACF; --ink:#1B201D; --muted:#5B635C;
+  --stage:#ECEEE8; --stage-glow:#FBFBF8;
+  --accent:#24566E; --accent-ink:#FFFFFF; --hl:#F2E3B3; --tension:#B23A2E;
+  --lm:#A8611C; --ng:#8A3E7E; --us:#2E7D4F; --ut:#B2452F;
+  --display:"Spectral", Georgia, "Times New Roman", serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131715; --surface:#1B201D; --sunk:#232925; --line:#333B35; --ink:#E6E9E3; --muted:#9BA49C;
+  --stage:#0F1311; --stage-glow:#1E2521;
+  --accent:#86BCD4; --accent-ink:#0E1A20; --hl:#4A4020; --tension:#F08A7A;
+  --lm:#E0A35E; --ng:#D38AC7; --us:#6CC491; --ut:#EE8A72; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131715; --surface:#1B201D; --sunk:#232925; --line:#333B35; --ink:#E6E9E3; --muted:#9BA49C;
+  --stage:#0F1311; --stage-glow:#1E2521;
+  --accent:#86BCD4; --accent-ink:#0E1A20; --hl:#4A4020; --tension:#F08A7A;
+  --lm:#E0A35E; --ng:#D38AC7; --us:#6CC491; --ut:#EE8A72; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+#save{display:none}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px}
+.wrap{max-width:1320px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(28px,4vw,40px)}
+h2{font-size:24px}
+h3{font-size:18px}
+p{margin:0}
+.lede{max-width:72ch;color:var(--muted);font-size:16px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{padding-block:24px 14px;display:grid;gap:8px}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding-block:8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.tab{border:1px solid transparent;background:none;padding:8px 12px;border-radius:var(--r);white-space:nowrap;display:flex;gap:8px;align-items:baseline;color:var(--muted)}
+.tab b{font-family:var(--mono);font-weight:500;font-size:12px}
+.tab[aria-selected="true"]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
+section.view{padding-top:20px;display:grid;gap:18px}
+.fw-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.fw-lm{--c:var(--lm)} .fw-ng{--c:var(--ng)} .fw-us{--c:var(--us)} .fw-ut{--c:var(--ut)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:14px;align-content:start;min-width:0}
+.note{font-size:13px;color:var(--muted);max-width:80ch}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--ink)}
+.values{display:flex;flex-wrap:wrap;gap:6px}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:var(--r);padding:8px 14px;font-weight:600;font-size:14px}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--line)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.status{font-size:13px;color:var(--muted)}
+input[type=text],textarea,select{font:inherit;font-weight:400;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:7px 10px;width:100%}
+textarea{min-height:56px;resize:vertical}
+label.f{display:grid;gap:4px;font-weight:600;font-size:13px}
+
+/* Perspectives */
+.persp{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.pcard{border-top:4px solid var(--c)}
+.pcard .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.wwww{display:grid;gap:8px;margin:0}
+.wwww div{display:grid;grid-template-columns:52px 1fr;gap:8px}
+.wwww dt{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--c);padding-top:3px}
+.wwww dd{margin:0;font-size:14px}
+
+/* Sphere view */
+.sphere-grid{display:grid;grid-template-columns:310px minmax(0,1fr);grid-template-areas:"ctx stage" "ctx below";gap:18px;align-items:start}
+.ctx{grid-area:ctx} .stage-col{grid-area:stage;min-width:0} .below{grid-area:below;display:grid;grid-template-columns:1fr 1fr;gap:18px;min-width:0}
+@media (max-width:980px){.sphere-grid{grid-template-columns:1fr;grid-template-areas:"stage" "ctx" "below"}.below{grid-template-columns:1fr}}
+.stage{position:relative;height:clamp(440px,72vh,700px);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  background:radial-gradient(circle at 50% 48%, var(--stage-glow), var(--stage) 70%)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;display:block}
+.stage canvas.grabbing{cursor:grabbing}
+.stage canvas.pointing{cursor:pointer}
+.ov{position:absolute;z-index:2}
+.ov-legend{top:12px;left:12px;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 24px)}
+.fwtog{display:flex;gap:6px;align-items:center;font-size:12px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 10px}
+.fwtog[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+.ov-hint{left:12px;bottom:12px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;max-width:min(360px,calc(100% - 24px))}
+.ov-mode{right:12px;bottom:12px;display:grid;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;width:min(240px,calc(100% - 24px))}
+.ov-mode .row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ov-mode input{width:100%;accent-color:var(--accent);margin:0}
+@media (max-width:560px){.ov-hint{display:none}.ov-mode{left:12px;right:12px;width:auto}}
+.tip{position:absolute;z-index:3;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:4px 8px;border-radius:4px;max-width:240px;transform:translate(-50%,calc(-100% - 12px));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pop{position:absolute;z-index:4;width:min(300px,calc(100% - 24px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px;display:grid;gap:10px}
+.pop .pair{font-size:13px;display:grid;gap:4px}
+.pop .pair span{display:flex;gap:6px;align-items:baseline}
+.kinds{display:flex;gap:6px;flex-wrap:wrap}
+.kind{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 10px;font-size:13px}
+.kind[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.kind.k-tension[aria-pressed="true"]{background:var(--tension);border-color:var(--tension);color:var(--surface)}
+
+fieldset{border:0;padding:0;margin:0;display:grid;gap:6px}
+legend{padding:0;font-weight:600;font-size:13px}
+legend small{font-weight:400;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:5px}
+.opt{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:4px 10px;font-size:13px}
+.opt[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.presets{display:grid;gap:4px}
+.preset{border:1px dashed var(--line);background:none;border-radius:var(--r);padding:5px 9px;font-size:13px;text-align:left}
+.preset:hover{border-color:var(--accent)}
+.bars{display:grid;gap:5px}
+.bar{display:grid;grid-template-columns:130px 1fr 34px;gap:8px;align-items:center;font-size:12px}
+.bar .track{height:8px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent)}
+.bar .v{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+
+.detail .desc{font-size:14px}
+.nblist{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.nblist li{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;font-size:13px}
+.nblist li .fw-dot{margin-top:5px}
+.linkbtn{background:none;border:0;padding:0;text-align:left;font-weight:600;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.why{color:var(--muted);font-weight:400}
+.kbadge{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:3px;background:var(--sunk)}
+.kbadge.tension{color:var(--tension)}
+.mix{display:flex;height:10px;border-radius:2px;overflow:hidden;background:var(--sunk)}
+.mix span{background:var(--c)}
+.mine{display:grid;gap:12px;max-height:420px;overflow:auto}
+.mine-group h4{margin:0 0 4px;font-size:12px;font-family:var(--mono);font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.mine-group ul{margin:0;padding:0;list-style:none;display:grid;gap:3px}
+.mine-group li{display:flex;gap:8px;align-items:baseline;font-size:14px}
+.mine-group li .fw-dot{position:relative;top:1px}
+
+/* Board */
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.bcard.picked{outline:2px solid var(--accent);outline-offset:-1px}
+.bcard .ctxd{font-size:13px;color:var(--muted)}
+.fprint{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;align-items:end;height:44px}
+.fprint i{display:block;background:var(--accent);border-radius:1px 1px 0 0;min-height:2px}
+.fplabels{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;font-family:var(--mono);font-size:9px;color:var(--muted);text-align:center}
+.empty-state{border:1px dashed var(--line);border-radius:var(--r);padding:24px;display:grid;gap:8px;justify-items:start;color:var(--muted)}
+.cmp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media (max-width:760px){.cmp{grid-template-columns:1fr}}
+.cmp ul{margin:0;padding-left:18px;font-size:13px}
+.consensus{display:grid;gap:4px}
+.crow2{display:grid;grid-template-columns:1fr 120px 40px;gap:10px;align-items:center;font-size:13px}
+.crow2 .track{height:8px;background:var(--sunk);border-radius:2px;overflow:hidden}
+.crow2 .fill{height:100%;background:var(--c)}
+.crow2 .v{font-family:var(--mono);font-size:12px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.crow2 .nm{display:flex;gap:6px;align-items:baseline;min-width:0}
+.links-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.links-list li{display:grid;gap:2px;font-size:13px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.links-list .pairline{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+.del{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;padding:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){.two{grid-template-columns:1fr}}
+footer{margin-top:40px;font-size:12px;color:var(--muted);max-width:90ch;display:grid;gap:6px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Four frameworks · 48 components · one context at a time</span>
+  <h1>AI Literacy Atlas</h1>
+  <p class="lede">Every AI literacy framework answers why it matters, who should learn it, what should be learned, and how to teach it, from a particular context and set of values. Pooled together, the frameworks form a many-sided space. Choosing your own assumptions collapses that space onto one concrete context, and what falls inside becomes your framework.</p>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Views">
+  <button class="tab" role="tab" id="tab-perspectives" data-view="perspectives"><b>1</b>Perspectives</button>
+  <button class="tab" role="tab" id="tab-sphere" data-view="sphere"><b>2</b>Sphere and projection</button>
+  <button class="tab" role="tab" id="tab-board" data-view="board"><b>3</b>Shared board</button>
+</nav>
+
+<!-- 1 PERSPECTIVES -->
+<section class="view" id="view-perspectives" role="tabpanel" hidden>
+  <div style="display:grid;gap:6px">
+    <h2>Each framework is a perspective</h2>
+    <p class="lede">These summaries are one reading of each source, offered as a starting point for discussion rather than as the authors' own words.</p>
+  </div>
+  <div class="persp" id="persp"></div>
+</section>
+
+<!-- 2 SPHERE -->
+<section class="view" id="view-sphere" role="tabpanel" hidden>
+  <div class="sphere-grid">
+    <form class="panel ctx" id="ctxform" autocomplete="off">
+      <div style="display:grid;gap:4px"><span class="eyebrow">Your assumptions</span><h3>Concretize a context</h3></div>
+      <div class="presets" id="presets" aria-label="Example contexts"></div>
+      <label class="f" for="ctx-name">Context name<input type="text" id="ctx-name" maxlength="80" placeholder="e.g. Year 9 science, public school"></label>
+      <label class="f" for="ctx-desc">What is going on here?<textarea id="ctx-desc" maxlength="500" placeholder="Learners, setting, constraints"></textarea></label>
+      <fieldset id="fs-who"><legend>Who <small>· choose one</small></legend><div class="opts"></div></fieldset>
+      <fieldset id="fs-why"><legend>Why <small>· up to two</small></legend><div class="opts"></div></fieldset>
+      <fieldset id="fs-how"><legend>How <small>· choose one</small></legend><div class="opts"></div></fieldset>
+      <fieldset id="fs-val"><legend>Values <small>· up to three</small></legend><div class="opts"></div></fieldset>
+      <button class="btn" type="button" id="project-btn">Project onto this context</button>
+      <div style="display:grid;gap:6px"><span class="eyebrow">Where this context puts its weight</span><div class="bars" id="bars"></div></div>
+    </form>
+
+    <div class="stage-col">
+      <div class="stage" id="stage">
+        <canvas id="cv" aria-label="Sphere of AI literacy components. Use the Find menu below for keyboard access." role="img"></canvas>
+        <div class="ov ov-legend" id="fwtoggles"></div>
+        <div class="ov ov-hint" id="hint"></div>
+        <div class="ov ov-mode"><div class="row"><span>Abstract sphere</span><span>Concrete plane</span></div>
+          <label for="tslider" class="eyebrow" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Projection amount</label>
+          <input type="range" id="tslider" min="0" max="1" step="0.01" value="0"></div>
+        <div class="tip" id="tip" hidden></div>
+        <div class="pop" id="pop" hidden role="dialog" aria-label="Connect two components"></div>
+      </div>
+    </div>
+
+    <div class="below">
+      <div class="panel detail" id="detail" aria-live="polite"></div>
+      <div class="panel" id="minepanel">
+        <div style="display:grid;gap:4px"><span class="eyebrow">Inside the boundary</span><h3 id="mine-title">Your framework</h3></div>
+        <div style="display:grid;gap:6px"><span class="note" id="mix-label"></span><div class="mix" id="mix"></div></div>
+        <div class="mine" id="mine"></div>
+        <label class="f" for="grp">Your name or group (shown on the board)<input type="text" id="grp" maxlength="60" placeholder="e.g. Group 3"></label>
+        <div class="actions">
+          <button class="btn" type="button" id="save">Save to shared board</button>
+          <button class="btn ghost" type="button" id="copy">Copy as text</button>
+        </div>
+        <span class="status" id="save-status"></span>
+        <textarea id="copy-fallback" hidden readonly aria-label="Framework text"></textarea>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 BOARD -->
+<section class="view" id="view-board" role="tabpanel" hidden>
+  <div style="display:grid;gap:6px">
+    <h2>One space, many projections</h2>
+    <p class="lede">Each saved framework is the same sphere collapsed onto a different context. The connections people draw show where they read two frameworks as saying the same thing, something related, or something in tension.</p>
+  </div>
+  <div id="board-wrap" style="display:grid;gap:20px"></div>
+</section>
+
+<footer>
+  <p>Sources: Long, D., &amp; Magerko, B. (2020). What is AI literacy? Competencies and design considerations. CHI 2020. · Ng, D. T. K., Leung, J. K. L., Chu, S. K. W., &amp; Qiao, M. S. (2021). Conceptualizing AI literacy: An exploratory review. Computers and Education: Artificial Intelligence, 2. · UNESCO (2024). AI competency framework for students (Miao &amp; Shiohira). · UNESCO (2024). AI competency framework for teachers (Miao &amp; Cukurova).</p>
+  <p>Component descriptions are paraphrased. Theme placements on the sphere and the projection weights are interpretive design choices meant to be questioned.</p>
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ================= DATA ================= */
+const FW = {
+  lm:{name:"Long & Magerko (2020)", short:"Long & Magerko", meta:"CHI paper · 17 competencies · 15 design considerations",
+    context:"Human-computer interaction and learning sciences research on designing learner-centered AI experiences for non-experts, often in informal settings such as museums.",
+    why:"So that people without a computing background can communicate and collaborate with AI, and use it critically.",
+    who:"Non-technical learners and the general public.",
+    what:"Conceptual understanding of what AI is, what it can do, how it works, how it should be used, and how people perceive it.",
+    how:"Design considerations such as explainability, embodied interaction, low barriers to entry, and building on learners' interests.",
+    values:["Demystification","Critical use","Learner interest"]},
+  ng:{name:"Ng et al. (2021)", short:"Ng et al.", meta:"Exploratory review · 4 aspects · mapped to Bloom's taxonomy",
+    context:"An education research review consolidating how studies define and teach AI literacy.",
+    why:"AI literacy is treated as a basic skill for everyone, and the field needed a shared definition.",
+    who:"Learners at all levels, from early childhood through adults.",
+    what:"Four aspects: knowing and understanding, using and applying, evaluating and creating, and AI ethics.",
+    how:"A cognitive progression from lower- to higher-order thinking, drawing on teaching approaches in the reviewed studies.",
+    values:["Cognitive progression","Ethics","Generality"]},
+  us:{name:"UNESCO students (2024)", short:"UNESCO students", meta:"Global policy framework · 12 competencies · Understand, Apply, Create",
+    context:"Global education policy aimed at integrating AI learning objectives into school curricula.",
+    why:"So students become responsible users and co-creators of AI, and engaged citizens in an AI era.",
+    who:"School students.",
+    what:"Four dimensions: human-centred mindset, ethics of AI, AI techniques and applications, and AI system design.",
+    how:"Curriculum integration with progression levels and domain-specific pedagogies.",
+    values:["Human rights","Human agency","Inclusion","Sustainability"]},
+  ut:{name:"UNESCO teachers (2024)", short:"UNESCO teachers", meta:"Global policy framework · 15 competencies · Acquire, Deepen, Create",
+    context:"Global education policy guiding national teacher competency frameworks and professional training.",
+    why:"AI has turned the teacher-student relationship into a teacher-AI-student one, so teachers' roles and competencies need redefining.",
+    who:"Teachers, teacher educators, and professional development providers.",
+    what:"Five dimensions: human-centred mindset, ethics of AI, AI foundations and applications, AI pedagogy, and AI for professional learning.",
+    how:"Teacher training and professional learning pathways with three progression levels.",
+    values:["Teacher agency","Teachers' rights","Inclusion","Sustainability"]}
+};
+const FWK = ["lm","ng","us","ut"];
+const TH = [
+  {k:"REC",n:"Recognizing AI",d:"What counts as AI and as intelligence"},
+  {k:"MECH",n:"How AI works",d:"Mechanisms, models, reasoning, sensing"},
+  {k:"DATA",n:"Data",d:"Learning from data and interpreting it"},
+  {k:"USE",n:"Using AI",d:"Applying AI tools in real tasks"},
+  {k:"EVAL",n:"Evaluating AI",d:"Judging strengths, limits, and outputs"},
+  {k:"CREATE",n:"Creating AI",d:"Scoping, designing, and building"},
+  {k:"ETH",n:"Ethics",d:"Principles, safety, responsible use"},
+  {k:"HUM",n:"Human agency",d:"Human roles, accountability, citizenship"},
+  {k:"FUT",n:"Futures",d:"Future AI and transformation"},
+  {k:"PED",n:"Teaching with AI",d:"AI in pedagogy and classrooms"},
+  {k:"PRO",n:"Professional learning",d:"AI for ongoing professional growth"}
+];
+const THI = Object.fromEntries(TH.map((t,i)=>[t.k,i]));
+const THN = Object.fromEntries(TH.map(t=>[t.k,t.n]));
+const RAW = [
+ ["lm1","lm","Recognizing AI","What is AI?","Tell apart technologies that use AI from those that do not.",["REC"]],
+ ["lm2","lm","Understanding intelligence","What is AI?","Discuss what makes an entity intelligent, including differences between human, animal, and machine intelligence.",["REC"]],
+ ["lm3","lm","Interdisciplinarity","What is AI?","Recognize that there are many ways to think about and build intelligent machines.",["REC","MECH"]],
+ ["lm4","lm","General vs. narrow AI","What is AI?","Distinguish general AI from narrow, task-specific AI.",["REC"]],
+ ["lm5","lm","AI's strengths and weaknesses","What can AI do?","Identify problems AI handles well and poorly, and judge when to rely on human skills instead.",["EVAL","USE"]],
+ ["lm6","lm","Imagine future AI","What can AI do?","Imagine possible future AI applications and consider their effects on the world.",["FUT"]],
+ ["lm7","lm","Representations","How does AI work?","Understand what a knowledge representation is and give examples.",["MECH"]],
+ ["lm8","lm","Decision-making","How does AI work?","Describe examples of how computers reason and make decisions.",["MECH"]],
+ ["lm9","lm","Machine learning steps","How does AI work?","Understand the steps of machine learning and the practices and challenges in each.",["MECH","DATA"]],
+ ["lm10","lm","Human role in AI","How does AI work?","Recognize that people program, choose, and tune AI systems.",["HUM","MECH"]],
+ ["lm11","lm","Data literacy","How does AI work?","Understand basic data literacy concepts.",["DATA"]],
+ ["lm12","lm","Learning from data","How does AI work?","Recognize that computers often learn from data, including one's own data.",["DATA"]],
+ ["lm13","lm","Critically interpreting data","How does AI work?","Understand that data needs interpretation and that training data shapes what a system produces.",["DATA","EVAL"]],
+ ["lm14","lm","Action and reaction","How does AI work?","Understand that some AI systems act physically on the world, by reasoning or by reacting to their surroundings.",["MECH"]],
+ ["lm15","lm","Sensors","How does AI work?","Understand that computers perceive the world through sensors and identify sensors on everyday devices.",["MECH"]],
+ ["lm16","lm","Ethics","How should AI be used?","Describe perspectives on key ethical issues such as privacy, bias, employment, misinformation, transparency, and accountability.",["ETH"]],
+ ["lm17","lm","Programmability","How do people perceive AI?","Understand that AI agents are programmable.",["MECH","CREATE"]],
+ ["ng1","ng","Know and understand AI","Remember, understand","Know basic functions of AI and how AI applications work.",["REC","MECH"]],
+ ["ng2","ng","Use and apply AI","Apply","Apply AI concepts and applications across different situations.",["USE"]],
+ ["ng3","ng","Evaluate and create AI","Analyze, evaluate, create","Use higher-order thinking to evaluate AI applications and to create new ones.",["EVAL","CREATE"]],
+ ["ng4","ng","AI ethics","Ethics","Attend to fairness, accountability, transparency, safety, and other human-centred concerns.",["ETH"]],
+ ["us1","us","Human agency","Human-centred mindset · Understand","Understand that AI is human-led and think critically about human versus machine agency.",["HUM"]],
+ ["us2","us","Human accountability","Human-centred mindset · Apply","Take responsibility for decisions made with AI and keep humans answerable for its use.",["HUM","ETH"]],
+ ["us3","us","Citizenship in the era of AI","Human-centred mindset · Create","Act as a responsible citizen who helps shape AI's role in society.",["HUM","FUT"]],
+ ["us4","us","Embodied ethics","Ethics of AI · Understand","Reflect on and internalize ethical principles for AI in one's own conduct.",["ETH"]],
+ ["us5","us","Safe and responsible use","Ethics of AI · Apply","Use AI safely, protecting privacy and wellbeing, and following ethical norms.",["ETH","USE"]],
+ ["us6","us","Ethics by design","Ethics of AI · Create","Build ethical considerations into how AI tools are designed and used.",["ETH","CREATE"]],
+ ["us7","us","AI foundations","Techniques and applications · Understand","Grasp foundational AI concepts, including data and algorithms.",["MECH","DATA"]],
+ ["us8","us","Application skills","Techniques and applications · Apply","Select and use AI tools effectively and judge their outputs.",["USE","EVAL"]],
+ ["us9","us","Creating AI tools","Techniques and applications · Create","Build or customize simple AI tools.",["CREATE"]],
+ ["us10","us","Problem scoping","AI system design · Understand","Decide whether a problem should be addressed with AI and frame it well.",["CREATE","EVAL"]],
+ ["us11","us","Architecture design","AI system design · Apply","Plan the structure of an AI solution, including data and model choices.",["CREATE","MECH"]],
+ ["us12","us","Iteration and feedback loops","AI system design · Create","Test, refine, and improve AI systems through feedback.",["CREATE","DATA"]],
+ ["ut1","ut","Human agency","Human-centred mindset · Acquire","Keep teachers and learners in charge of decisions when AI is involved.",["HUM"]],
+ ["ut2","ut","Human accountability","Human-centred mindset · Deepen","Hold humans responsible for the consequences of AI use in education.",["HUM","ETH"]],
+ ["ut3","ut","Social responsibility","Human-centred mindset · Create","Help shape inclusive and sustainable AI in society.",["HUM","FUT"]],
+ ["ut4","ut","Ethical principles","Ethics of AI · Acquire","Understand core ethical principles relevant to AI in education.",["ETH"]],
+ ["ut5","ut","Safe and responsible use","Ethics of AI · Deepen","Use AI in ways that protect students' privacy, safety, and rights.",["ETH","USE"]],
+ ["ut6","ut","Co-creating ethical rules","Ethics of AI · Create","Work with others to set ethical rules for AI in schools.",["ETH","PED"]],
+ ["ut7","ut","Basic AI techniques and applications","Foundations and applications · Acquire","Understand basic AI techniques and common educational applications.",["MECH","REC"]],
+ ["ut8","ut","Application skills","Foundations and applications · Deepen","Choose and use AI tools well and judge their outputs.",["USE","EVAL"]],
+ ["ut9","ut","Creating with AI","Foundations and applications · Create","Adapt or build AI-supported resources for teaching.",["CREATE","PED"]],
+ ["ut10","ut","AI-assisted teaching","AI pedagogy · Acquire","Use AI to support everyday teaching tasks.",["PED","USE"]],
+ ["ut11","ut","AI-pedagogy integration","AI pedagogy · Deepen","Integrate AI meaningfully into lesson design and assessment.",["PED"]],
+ ["ut12","ut","AI-enhanced pedagogical transformation","AI pedagogy · Create","Rethink teaching practice in light of what AI makes possible.",["PED","FUT"]],
+ ["ut13","ut","AI for lifelong professional learning","Professional learning · Acquire","Use AI to support one's own ongoing learning as a teacher.",["PRO"]],
+ ["ut14","ut","AI to enhance organizational learning","Professional learning · Deepen","Use AI to strengthen learning across teams and schools.",["PRO"]],
+ ["ut15","ut","AI for professional transformation","Professional learning · Create","Lead changes in the teaching profession with AI.",["PRO","FUT"]]
+];
+const C = RAW.map(r=>({id:r[0],fw:r[1],name:r[2],group:r[3],desc:r[4],th:r[5]}));
+const CI = Object.fromEntries(C.map(c=>[c.id,c]));
+const FACETS = {
+ who:{max:1, opts:[
+  {k:"kids",n:"Young children",w:{REC:2,USE:1,EVAL:1,ETH:1,HUM:1,FUT:1,MECH:.5}},
+  {k:"teens",n:"Secondary students",w:{REC:1,MECH:1.5,DATA:1.5,USE:1,CREATE:1.5,EVAL:1,ETH:1,HUM:1}},
+  {k:"uni",n:"University students",w:{MECH:1,DATA:1,USE:2,EVAL:2,ETH:1.5,HUM:1,CREATE:.5}},
+  {k:"teach",n:"Teachers",w:{PED:3,PRO:2,USE:1.5,ETH:1.5,EVAL:1,HUM:1}},
+  {k:"work",n:"Professionals",w:{USE:2.5,EVAL:2,PRO:1.5,ETH:1,DATA:1}},
+  {k:"public",n:"General public",w:{REC:2,EVAL:2,ETH:1.5,HUM:1.5,USE:1}}]},
+ why:{max:2, opts:[
+  {k:"protect",n:"Protect from harm",w:{EVAL:3,ETH:2,DATA:1,REC:1}},
+  {k:"citizen",n:"Participate as citizens",w:{HUM:3,ETH:2,EVAL:1.5,FUT:1}},
+  {k:"work",n:"Work and productivity",w:{USE:3,PRO:1,EVAL:1}},
+  {k:"build",n:"Build and innovate",w:{CREATE:3,MECH:2,DATA:2}},
+  {k:"teach",n:"Teach and learn better",w:{PED:3,USE:1,PRO:1}},
+  {k:"demyst",n:"Understand and demystify",w:{REC:2,MECH:2,DATA:1.5}}]},
+ how:{max:1, opts:[
+  {k:"make",n:"Hands-on making",w:{CREATE:2,MECH:1,DATA:1}},
+  {k:"critical",n:"Critical discussion",w:{EVAL:2,ETH:1.5,HUM:1}},
+  {k:"embed",n:"Embedded in subjects",w:{USE:1.5,PED:1,EVAL:.5}},
+  {k:"direct",n:"Concept instruction",w:{REC:1.5,MECH:1.5,DATA:1}}]},
+ val:{max:3, opts:[
+  {k:"agency",n:"Human agency",w:{HUM:2,ETH:.5}},
+  {k:"equity",n:"Equity and inclusion",w:{ETH:1.5,HUM:1}},
+  {k:"innov",n:"Innovation",w:{CREATE:1.5,FUT:1.5}},
+  {k:"eff",n:"Efficiency",w:{USE:1.5}},
+  {k:"safety",n:"Safety and wellbeing",w:{ETH:1.5,EVAL:1}},
+  {k:"sustain",n:"Sustainability",w:{ETH:1,FUT:1,HUM:.5}},
+  {k:"critthink",n:"Critical thinking",w:{EVAL:2}}]}
+};
+const FACET_FS = {who:"fs-who",why:"fs-why",how:"fs-how",val:"fs-val"};
+const FACET_LABEL = {who:"Who",why:"Why",how:"How",val:"Values"};
+const PRESETS = [
+ {name:"Grade 5 class, public primary school",desc:"Ten-year-olds who already talk to voice assistants at home. One hour a week for a term.",who:"kids",why:["demyst","protect"],how:"make",val:["agency","safety"]},
+ {name:"Nursing program, final year",desc:"Students about to work in hospitals that are rolling out AI triage and documentation tools.",who:"uni",why:["work","protect"],how:"embed",val:["safety","critthink"]},
+ {name:"Secondary teacher PD, Hong Kong",desc:"In-service teachers across subjects, short after-school workshops, schools piloting generative AI.",who:"teach",why:["teach"],how:"embed",val:["agency","eff"]},
+ {name:"Community library series for retirees",desc:"Older adults facing AI-generated scams and new government e-services.",who:"public",why:["protect","citizen"],how:"critical",val:["safety","equity"]}
+];
+const KINDS = {same:"Same idea",related:"Related",tension:"In tension"};
+
+/* ================= HELPERS ================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const el = (tag,attrs={},kids=[])=>{const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const k of [].concat(kids)){if(k!=null&&k!==false)e.append(k.nodeType?k:document.createTextNode(k));}return e;};
+const dot = fw=>el("span",{class:"fw-dot fw-"+fw,"aria-hidden":"true"});
+const fmt = n=>n.toFixed(2);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pairKey=(a,b)=>a<b?a+"|"+b:b+"|"+a;
+
+/* ================= TABS ================= */
+const VIEWS=["perspectives","sphere","board"];
+let currentView="sphere";
+function show(v){
+  if(!VIEWS.includes(v)) v="sphere";
+  currentView=v;
+  for(const x of VIEWS){ $("#view-"+x).hidden = x!==v; $("#tab-"+x).setAttribute("aria-selected", x===v?"true":"false"); }
+  try{ if(location.hash!=="#"+v) history.replaceState(null,"","#"+v);}catch(e){}
+  if(v==="sphere") requestAnimationFrame(resize);
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>show(b.dataset.view)));
+
+/* ================= PERSPECTIVES ================= */
+(function(){
+  const host=$("#persp");
+  for(const k of FWK){
+    const f=FW[k]; const n=C.filter(c=>c.fw===k).length;
+    host.append(el("article",{class:"panel pcard fw-"+k},[
+      el("div",{style:"display:grid;gap:4px"},[el("h3",{text:f.name}),el("span",{class:"meta",text:f.meta})]),
+      el("p",{class:"note",text:f.context}),
+      el("dl",{class:"wwww"},[["Why",f.why],["Who",f.who],["What",f.what],["How",f.how]].map(([a,b])=>el("div",{},[el("dt",{text:a}),el("dd",{text:b})]))),
+      el("div",{style:"display:grid;gap:6px"},[el("span",{class:"eyebrow",text:"Values foregrounded"}),el("div",{class:"values"},f.values.map(v=>el("span",{class:"tag",text:v})))]),
+      el("button",{class:"btn ghost",type:"button",onclick:()=>{ fwOn={lm:false,ng:false,us:false,ut:false}; fwOn[k]=true; renderToggles(); show("sphere"); }},"Show its "+n+" components on the sphere")
+    ]));
+  }
+})();
+
+/* ================= GEOMETRY ================= */
+const norm=v=>{const l=Math.hypot(v[0],v[1],v[2])||1;return [v[0]/l,v[1]/l,v[2]/l];};
+const add=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function fib(n){const pts=[];const g=Math.PI*(3-Math.sqrt(5));for(let i=0;i<n;i++){const y=1-(i+.5)/n*2;const r=Math.sqrt(1-y*y);const th=g*i;pts.push([Math.cos(th)*r,y,Math.sin(th)*r]);}return pts;}
+const ANCH={}; fib(TH.length).forEach((p,i)=>ANCH[TH[i].k]=p);
+const BYTH={}; C.forEach(c=>{(BYTH[c.th[0]]=BYTH[c.th[0]]||[]).push(c);});
+for(const t in BYTH){
+  BYTH[t].forEach((c,j)=>{
+    const a=ANCH[t]; const up=Math.abs(a[1])>.9?[1,0,0]:[0,1,0];
+    const u=norm(cross(a,up)), v=cross(a,u);
+    const ang=j*2.39996, rad=j===0?0.05:0.1+0.07*Math.sqrt(j);
+    let p=add(add(a,u,Math.cos(ang)*rad),v,Math.sin(ang)*rad);
+    if(c.th[1]) p=add(p,ANCH[c.th[1]],0.22);
+    c.p=norm(p); c.j=j; c.n=BYTH[t].length;
+  });
+}
+// base edges: cross-framework pairs sharing a primary theme
+const EDGES=[];
+for(let i=0;i<C.length;i++)for(let j=i+1;j<C.length;j++){const a=C[i],b=C[j]; if(a.fw!==b.fw && a.th[0]===b.th[0]) EDGES.push([a.id,b.id]);}
+function slerpPts(a,b,k){
+  const pts=[]; const d=clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2],-1,1); const om=Math.acos(d); const so=Math.sin(om)||1e-6;
+  for(let i=0;i<=k;i++){const u=i/k; let p; if(om<1e-3) p=a; else { const s1=Math.sin((1-u)*om)/so, s2=Math.sin(u*om)/so; p=[a[0]*s1+b[0]*s2,a[1]*s1+b[1]*s2,a[2]*s1+b[2]*s2]; }
+    const lift=1+0.10*Math.sin(Math.PI*u)*om/2; pts.push([p[0]*lift,p[1]*lift,p[2]*lift]);}
+  return pts;
+}
+const ARC={}; // cache slerp samples per pair
+function arcFor(a,b){const k=pairKey(a,b); if(!ARC[k]) ARC[k]=slerpPts(CI[a].p,CI[b].p,14); return ARC[k];}
+
+/* ================= PROJECTION MATH ================= */
+const state={name:"",desc:"",who:null,why:[],how:null,val:[],thr:.45,pin:{},drop:{}};
+function selectedOpts(){const out=[];for(const f of Object.keys(FACETS)){for(const k of [].concat(state[f]||[])){const o=FACETS[f].opts.find(x=>x.k===k);if(o)out.push({f,o});}}return out;}
+function themeWeights(){const w=Object.fromEntries(TH.map(t=>[t.k,0]));for(const {o} of selectedOpts())for(const [t,v] of Object.entries(o.w))w[t]+=v;const mx=Math.max(...Object.values(w));if(mx>0)for(const t in w)w[t]/=mx;return w;}
+function score(c,w){return c.th.length===1?w[c.th[0]]:(w[c.th[0]]+.5*w[c.th[1]])/1.5;}
+function isIn(c,s){if(state.drop[c.id])return false;if(state.pin[c.id])return true;return s>=state.thr;}
+let W=themeWeights(), SC={};
+function recompute(){W=themeWeights();SC={};for(const c of C)SC[c.id]=score(c,W);}
+const R_IN=0.2, R_SPAN=0.74;
+const rOfScore=s=>R_IN+R_SPAN*(1-s);
+function effScore(c){const s=SC[c.id]||0; if(state.pin[c.id]&&s<state.thr) return Math.min(1,state.thr+0.05); if(state.drop[c.id]&&s>=state.thr) return Math.max(0,state.thr-0.06); return s;}
+function planePos(c){
+  const ti=THI[c.th[0]]; const seg=2*Math.PI/TH.length;
+  const r=rOfScore(effScore(c))+((c.j%2)?0.035:0);
+  const off=(c.j-(c.n-1)/2)*0.075/r; const lim=seg*0.42;
+  const a=-Math.PI/2+ti*seg+clamp(off,-lim,lim);
+  return [Math.cos(a)*r,Math.sin(a)*r];
+}
+
+/* ================= CANVAS ================= */
+const cv=$("#cv"), ctx=cv.getContext("2d"), stage=$("#stage");
+let DPR=1, Wd=0, Ht=0, CX=0, CY=0, RAD=100;
+let Rm=[[1,0,0],[0,1,0],[0,0,1]];
+(function initRot(){rotate(0.5,-0.35);})();
+function rotate(ay,ax){ // ay around y (horizontal drag), ax around x
+  const cy=Math.cos(ay),sy=Math.sin(ay),cx=Math.cos(ax),sx=Math.sin(ax);
+  const Ry=[[cy,0,sy],[0,1,0],[-sy,0,cy]], Rx=[[1,0,0],[0,cx,-sx],[0,sx,cx]];
+  Rm=mul(Rx,mul(Ry,Rm));
+}
+function mul(A,B){const o=[[0,0,0],[0,0,0],[0,0,0]];for(let i=0;i<3;i++)for(let j=0;j<3;j++)o[i][j]=A[i][0]*B[0][j]+A[i][1]*B[1][j]+A[i][2]*B[2][j];return o;}
+function rot(p){return [Rm[0][0]*p[0]+Rm[0][1]*p[1]+Rm[0][2]*p[2],Rm[1][0]*p[0]+Rm[1][1]*p[1]+Rm[1][2]*p[2],Rm[2][0]*p[0]+Rm[2][1]*p[1]+Rm[2][2]*p[2]];}
+const CAM=3.4;
+function proj3(p){const q=rot(p);const s=CAM/(CAM-q[2]);return [CX+q[0]*RAD*s,CY-q[1]*RAD*s,q[2]];}
+let T=0, Ttarget=0, sliderDragging=false;
+let fwOn={lm:true,ng:true,us:true,ut:true};
+let colors={};
+function readColors(){const cs=getComputedStyle(document.documentElement);for(const k of ["ink","muted","line","accent","tension","lm","ng","us","ut","surface","hl","sunk"])colors[k]=cs.getPropertyValue("--"+k).trim()||"#888";}
+readColors();
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",readColors);}catch(e){}
+try{new MutationObserver(readColors).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});}catch(e){}
+function resize(){const r=stage.getBoundingClientRect(); if(!r.width) return; DPR=Math.min(2,window.devicePixelRatio||1); Wd=r.width; Ht=r.height; cv.width=Math.round(Wd*DPR); cv.height=Math.round(Ht*DPR); ctx.setTransform(DPR,0,0,DPR,0,0); CX=Wd/2; CY=Ht/2-10; RAD=Math.min(Wd,Ht)*0.33;}
+window.addEventListener("resize",resize);
+try{new ResizeObserver(resize).observe(stage);}catch(e){}
+
+let SP={}; // screen positions
+let selected=null, hover=null, dragNode=null, dragPt=null, lastInteract=0;
+let LINKS={}; // aggregated pairKey -> {a,b,kinds:{},notes:[],count,mine}
+function computeScreen(){
+  const e=ease(T);
+  for(const c of C){
+    const s3=proj3(c.p); const pp=planePos(c);
+    const s2=[CX+pp[0]*RAD*1.18, CY+pp[1]*RAD*1.18];
+    const x=s3[0]+(s2[0]-s3[0])*e, y=s3[1]+(s2[1]-s3[1])*e;
+    const depthA=0.22+0.78*((s3[2]+1)/2);
+    const inn=isIn(c,SC[c.id]||0); const any=selectedOpts().length>0;
+    const planeA= any?(inn?1:0.32):0.7;
+    let a=depthA+(planeA-depthA)*e; if(!fwOn[c.fw]) a*=0.08;
+    const s=SC[c.id]||0; const r0=any?4+5*s:6; const r=r0*(1-e*0.15)+ (any?(4+5*s)*e*0.15:0);
+    SP[c.id]={x,y,z:s3[2]*(1-e)+(inn?1:0)*e,a,r:Math.max(3.5,r),inn};
+  }
+}
+function lineStyle(kind){ if(kind==="tension"){ctx.setLineDash([2,4]);return colors.tension;} if(kind==="related"){ctx.setLineDash([6,4]);return colors.accent;} ctx.setLineDash([]);return colors.accent; }
+function drawPath(a,b){ // blended arc
+  const e=ease(T); const pts=arcFor(a,b); const A=SP[a],B=SP[b];
+  ctx.beginPath();
+  pts.forEach((p,i)=>{const s=proj3(p);const u=i/(pts.length-1);const lx=A.x+(B.x-A.x)*u, ly=A.y+(B.y-A.y)*u;
+    // in 3D the arc endpoints are the 3D positions, blend toward straight line between current screen points
+    const x=s[0]*(1-e)+lx*e, y=s[1]*(1-e)+ly*e; if(i===0)ctx.moveTo(A.x,A.y); else if(i===pts.length-1) ctx.lineTo(B.x,B.y); else ctx.lineTo(x,y);});
+  ctx.stroke();
+}
+function neighbors(c){
+  return C.filter(o=>o.fw!==c.fw).map(o=>{let s=0;const shared=[];c.th.forEach((t,i)=>{const j=o.th.indexOf(t);if(j>-1){s+=(i===0?1:.5)*(j===0?1:.5);shared.push(t);}});return {o,s,shared};}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
+}
+function draw(){
+  if(!Wd) return;
+  ctx.clearRect(0,0,Wd,Ht);
+  computeScreen();
+  const e=ease(T); const any=selectedOpts().length>0;
+  // sphere outline
+  if(e<1){ ctx.globalAlpha=(1-e)*0.5; ctx.strokeStyle=colors.line; ctx.lineWidth=1; ctx.setLineDash([]); ctx.beginPath(); ctx.arc(CX,CY,RAD*CAM/Math.sqrt(CAM*CAM-1),0,Math.PI*2); ctx.stroke(); }
+  // plane: boundary ring + spokes
+  if(e>0){
+    const R2=RAD*1.18;
+    ctx.globalAlpha=e*0.35; ctx.strokeStyle=colors.line; ctx.lineWidth=1; ctx.setLineDash([]);
+    TH.forEach((t,i)=>{const a=-Math.PI/2+(i+.5)*2*Math.PI/TH.length; ctx.beginPath(); ctx.moveTo(CX+Math.cos(a)*R2*R_IN*0.8,CY+Math.sin(a)*R2*R_IN*0.8); ctx.lineTo(CX+Math.cos(a)*R2*1.0,CY+Math.sin(a)*R2*1.0); ctx.stroke();});
+    ctx.beginPath(); ctx.arc(CX,CY,R2*(R_IN+R_SPAN+0.04),0,Math.PI*2); ctx.stroke();
+    if(any){
+      const rr=R2*rOfScore(state.thr);
+      ctx.globalAlpha=e; ctx.fillStyle=colors.accent; ctx.globalAlpha=e*0.07; ctx.beginPath(); ctx.arc(CX,CY,rr,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha=e*(ringHover?1:0.8); ctx.strokeStyle=colors.accent; ctx.lineWidth=ringHover?3:2; ctx.setLineDash([]); ctx.beginPath(); ctx.arc(CX,CY,rr,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha=e; ctx.fillStyle=colors.accent; ctx.font="500 10px 'IBM Plex Mono', monospace"; ctx.textAlign="center"; ctx.textBaseline="bottom";
+      ctx.fillText("BOUNDARY · "+fmt(state.thr),CX,CY-rr-4);
+      // center label
+      ctx.font="600 13px Spectral, Georgia, serif"; ctx.textBaseline="middle";
+      const nm0=(state.name.trim()||"Your context"); const nm=nm0.length>26?nm0.slice(0,25)+"…":nm0; const tw=ctx.measureText(nm).width;
+      ctx.globalAlpha=e*0.92; ctx.fillStyle=colors.surface; ctx.fillRect(CX-tw/2-8,CY-11,tw+16,22);
+      ctx.globalAlpha=e; ctx.strokeStyle=colors.accent; ctx.lineWidth=1; ctx.strokeRect(CX-tw/2-8,CY-11,tw+16,22);
+      ctx.fillStyle=colors.ink; ctx.fillText(nm,CX,CY);
+    }
+  }
+  // theme labels
+  ctx.setLineDash([]);
+  TH.forEach((t,i)=>{
+    const s3=proj3(add([0,0,0],ANCH[t.k],1.16)); const a=-Math.PI/2+i*2*Math.PI/TH.length; const R2=RAD*1.18*(R_IN+R_SPAN+0.13);
+    const x=s3[0]*(1-e)+(CX+Math.cos(a)*R2)*e, y=s3[1]*(1-e)+(CY+Math.sin(a)*R2)*e;
+    const front=(s3[2]+1)/2; let al=(1-e)*(0.15+0.75*front)+e*(any?0.35+0.65*W[t.k]:0.8);
+    ctx.globalAlpha=al; ctx.fillStyle=colors.muted; ctx.font="500 10.5px 'IBM Plex Mono', monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(t.n.toUpperCase(),x,y);
+  });
+  // base edges
+  ctx.lineWidth=1;
+  const selNb = selected? new Set(neighbors(CI[selected]).slice(0,8).map(x=>x.o.id)) : null;
+  for(const [a,b] of EDGES){
+    if(!fwOn[CI[a].fw]||!fwOn[CI[b].fw]) continue;
+    const hl = selected && ((a===selected&&selNb.has(b))||(b===selected&&selNb.has(a)));
+    const da=Math.min(SP[a].a,SP[b].a);
+    ctx.globalAlpha= hl?0.7:da*0.16*(1-e*0.6); ctx.strokeStyle= hl?colors.ink:colors.muted; ctx.setLineDash(hl?[]:[]);
+    drawPath(a,b);
+  }
+  if(selected){ for(const id of selNb){ if(CI[selected].th[0]===CI[id].th[0]) continue; if(!fwOn[CI[id].fw]) continue; ctx.globalAlpha=0.5; ctx.strokeStyle=colors.ink; ctx.setLineDash([3,3]); drawPath(selected,id);} }
+  // user links
+  for(const L of Object.values(LINKS)){
+    if(!CI[L.a]||!CI[L.b]||!fwOn[CI[L.a].fw]||!fwOn[CI[L.b].fw]) continue;
+    const kind=Object.entries(L.kinds).sort((x,y)=>y[1]-x[1])[0][0];
+    ctx.strokeStyle=lineStyle(kind); ctx.lineWidth=1.6+Math.min(L.count,6)*0.7;
+    ctx.globalAlpha=Math.max(0.45,Math.min(SP[L.a].a,SP[L.b].a)); drawPath(L.a,L.b);
+  }
+  ctx.setLineDash([]); ctx.lineWidth=1;
+  // nodes sorted by depth
+  const order=[...C].sort((a,b)=>SP[a.id].z-SP[b.id].z);
+  for(const c of order){
+    const s=SP[c.id]; ctx.globalAlpha=s.a;
+    ctx.fillStyle=colors[c.fw]; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+    if(any&&e>0.5&&state.pin[c.id]){ctx.strokeStyle=colors.accent;ctx.lineWidth=2;ctx.stroke();}
+    if(c.id===selected||c.id===hover||(dragNode&&c.id===dragNode)){ctx.globalAlpha=1;ctx.strokeStyle=colors.ink;ctx.lineWidth=2;ctx.beginPath();ctx.arc(s.x,s.y,s.r+3,0,Math.PI*2);ctx.stroke();}
+    if(selNb&&selNb.has(c.id)){ctx.globalAlpha=Math.max(.6,s.a);ctx.strokeStyle=colors.ink;ctx.lineWidth=1;ctx.beginPath();ctx.arc(s.x,s.y,s.r+2.5,0,Math.PI*2);ctx.stroke();}
+  }
+  // labels with collision avoidance
+  ctx.font="500 12px 'Public Sans', system-ui, sans-serif"; ctx.textBaseline="middle"; ctx.textAlign="left";
+  const placed=[];
+  const prio=c=>{const s=SP[c.id]; if(c.id===selected||c.id===hover||c.id===dragNode) return 100; if(selNb&&selNb.has(c.id)) return 50; if(any&&e>0.5) return s.inn?10+(SC[c.id]||0):-1; return e<0.5&&s.z>0.3&&fwOn[c.fw]?s.z:-1;};
+  const cand=C.map(c=>({c,p:prio(c)})).filter(x=>x.p>=0).sort((a,b)=>b.p-a.p);
+  for(const {c,p} of cand){
+    const s=SP[c.id]; const label=c.name.length>30?c.name.slice(0,29)+"…":c.name; const w=ctx.measureText(label).width;
+    const left = s.x>CX+4 || (e<0.5); const lx= s.x<CX-4&&e>=0.5 ? s.x-s.r-5-w : s.x+s.r+5; const rect=[lx-2,s.y-8,w+4,16];
+    if(rect[0]<2||rect[0]+rect[2]>Wd-2) continue;
+    if(p<50 && placed.some(r=>!(rect[0]+rect[2]<r[0]||r[0]+r[2]<rect[0]||rect[1]+rect[3]<r[1]||r[1]+r[3]<rect[1]))) continue;
+    placed.push(rect);
+    ctx.globalAlpha=Math.max(0.55,s.a); ctx.fillStyle=colors.surface; ctx.globalAlpha*=0.7; ctx.fillRect(rect[0],rect[1],rect[2],rect[3]);
+    ctx.globalAlpha=Math.max(0.6,s.a); ctx.fillStyle=colors.ink; ctx.fillText(label,lx,s.y);
+  }
+  // drag line
+  if(dragNode&&dragPt){const s=SP[dragNode];ctx.globalAlpha=0.9;ctx.strokeStyle=colors.accent;ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(dragPt[0],dragPt[1]);ctx.stroke();ctx.setLineDash([]);
+    const tgt=hitNode(dragPt[0],dragPt[1],dragNode); if(tgt){const t=SP[tgt];ctx.beginPath();ctx.arc(t.x,t.y,t.r+6,0,Math.PI*2);ctx.stroke();}}
+  ctx.globalAlpha=1;
+}
+let vel=[0,0];
+function frame(){
+  if(currentView==="sphere"){
+    if(!sliderDragging){ const d=Ttarget-T; if(Math.abs(d)>0.001){ T+= reduce? d : d*0.08 + Math.sign(d)*0.004; if(Math.abs(Ttarget-T)<0.005) T=Ttarget; $("#tslider").value=T; updateHint(); } }
+    if(!pointer.down){ if(Math.abs(vel[0])+Math.abs(vel[1])>0.0002){ rotate(vel[0],vel[1]); vel[0]*=0.93; vel[1]*=0.93; }
+      else if(!reduce && T<0.05 && performance.now()-lastInteract>3500) rotate(0.0016,0); }
+    draw();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ================= POINTER ================= */
+const pointer={down:false,mode:null,x0:0,y0:0,x:0,y:0,id:null};
+let ringHover=false;
+function localXY(ev){const r=cv.getBoundingClientRect();return [ev.clientX-r.left,ev.clientY-r.top];}
+function hitNode(x,y,exclude){
+  let best=null,bd=1e9;
+  const order=[...C].sort((a,b)=>SP[b.id].z-SP[a.id].z);
+  for(const c of order){ if(c.id===exclude||!fwOn[c.fw]) continue; const s=SP[c.id]; if(!s||s.a<0.25) continue; const d=Math.hypot(s.x-x,s.y-y); if(d<s.r+8&&d<bd){bd=d;best=c.id;} }
+  return best;
+}
+function nearRing(x,y){ if(ease(T)<0.9||!selectedOpts().length) return false; const rr=RAD*1.18*rOfScore(state.thr); return Math.abs(Math.hypot(x-CX,y-CY)-rr)<9; }
+cv.addEventListener("pointerdown",ev=>{
+  const [x,y]=localXY(ev); lastInteract=performance.now(); closePop();
+  pointer.down=true; pointer.x0=pointer.x=x; pointer.y0=pointer.y=y; vel=[0,0];
+  const n=hitNode(x,y);
+  if(n){ pointer.mode="press"; pointer.id=n; }
+  else if(nearRing(x,y)){ pointer.mode="ring"; }
+  else { pointer.mode="rotate"; cv.classList.add("grabbing"); }
+  try{cv.setPointerCapture(ev.pointerId);}catch(e){}
+});
+cv.addEventListener("pointermove",ev=>{
+  const [x,y]=localXY(ev);
+  if(!pointer.down){
+    const n=hitNode(x,y); const rh=nearRing(x,y);
+    if(n!==hover||rh!==ringHover){hover=n;ringHover=rh;}
+    cv.classList.toggle("pointing",!!n||rh);
+    const tip=$("#tip"); if(n){tip.hidden=false;tip.textContent=CI[n].name+" · "+FW[CI[n].fw].short;tip.style.left=SP[n].x+"px";tip.style.top=(SP[n].y-SP[n].r)+"px";} else tip.hidden=true;
+    return;
+  }
+  lastInteract=performance.now();
+  const dx=x-pointer.x, dy=y-pointer.y; pointer.x=x; pointer.y=y;
+  if(pointer.mode==="rotate"){ const k= 1/RAD; const f=(1-ease(T)); rotate(dx*k*f, dy*k*f); vel=[dx*k*f*0.6,dy*k*f*0.6]; }
+  else if(pointer.mode==="press"){ if(Math.hypot(x-pointer.x0,y-pointer.y0)>6){ pointer.mode="drag"; dragNode=pointer.id; $("#tip").hidden=true; } }
+  if(pointer.mode==="drag"){ dragPt=[x,y]; }
+  if(pointer.mode==="ring"){ const r=Math.hypot(x-CX,y-CY)/(RAD*1.18); state.thr=clamp(1-(r-R_IN)/R_SPAN,0.05,0.95); renderLists(); }
+});
+function endPointer(ev){
+  if(!pointer.down) return;
+  const [x,y]=localXY(ev); pointer.down=false; cv.classList.remove("grabbing");
+  if(pointer.mode==="press"){ selectComp(pointer.id); }
+  else if(pointer.mode==="drag"){
+    const tgt=hitNode(x,y,dragNode);
+    if(tgt){ openPop(dragNode,tgt,x,y); }
+    else if(ease(T)>0.9 && selectedOpts().length){
+      const c=CI[dragNode]; const r=Math.hypot(x-CX,y-CY)/(RAD*1.18); const inside=r<rOfScore(state.thr); const s=SC[c.id]||0;
+      delete state.pin[c.id]; delete state.drop[c.id];
+      if(inside && s<state.thr) state.pin[c.id]=true;
+      if(!inside && s>=state.thr) state.drop[c.id]=true;
+      renderLists();
+    }
+    dragNode=null; dragPt=null;
+  }
+  pointer.mode=null;
+}
+cv.addEventListener("pointerup",endPointer);
+cv.addEventListener("pointercancel",ev=>{pointer.down=false;dragNode=null;dragPt=null;pointer.mode=null;cv.classList.remove("grabbing");});
+cv.addEventListener("pointerleave",()=>{if(!pointer.down){hover=null;ringHover=false;$("#tip").hidden=true;}});
+
+/* ================= CONNECT POPOVER ================= */
+let popState=null;
+function openPop(a,b,x,y){
+  popState={a,b,kind:"same"}; const pop=$("#pop"); pop.replaceChildren();
+  const A=CI[a],B=CI[b];
+  const kinds=el("div",{class:"kinds",role:"group","aria-label":"Kind of connection"});
+  for(const [k,n] of Object.entries(KINDS)) kinds.append(el("button",{type:"button",class:"kind k-"+k,"aria-pressed":k==="same"?"true":"false",onclick:ev=>{popState.kind=k;kinds.querySelectorAll(".kind").forEach(b=>b.setAttribute("aria-pressed",b===ev.currentTarget?"true":"false"));}},n));
+  const note=el("input",{type:"text",id:"pop-note",maxlength:"200",placeholder:"Why? (optional)"});
+  pop.append(el("span",{class:"eyebrow",text:"Connect"}),
+    el("div",{class:"pair"},[el("span",{},[dot(A.fw),el("b",{text:A.name}),el("span",{class:"why",text:FW[A.fw].short})]),el("span",{},[dot(B.fw),el("b",{text:B.name}),el("span",{class:"why",text:FW[B.fw].short})])]),
+    kinds,note,
+    el("div",{class:"actions"},[el("button",{type:"button",class:"btn small",onclick:()=>{addLink(a,b,popState.kind,note.value);closePop();}},"Add connection"),el("button",{type:"button",class:"btn ghost small",onclick:closePop},"Cancel")]));
+  pop.hidden=false;
+  const pw=Math.min(300,Wd-24), ph=pop.offsetHeight||200;
+  pop.style.left=clamp(x+12,12,Wd-pw-12)+"px"; pop.style.top=clamp(y-ph/2,12,Ht-ph-12)+"px";
+  note.focus();
+}
+function closePop(){ $("#pop").hidden=true; popState=null; }
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape")closePop();});
+
+/* ================= DETAIL ================= */
+function selectComp(id){ selected=id; renderDetail(); }
+function renderDetail(){
+  const d=$("#detail"); d.replaceChildren();
+  const find=el("select",{id:"find","aria-label":"Find a component"},[el("option",{value:""},"Find a component…"),...FWK.map(k=>{const g=el("optgroup",{label:FW[k].short});C.filter(c=>c.fw===k).forEach(c=>g.append(el("option",{value:c.id,selected:c.id===selected},c.name)));return g;})]);
+  find.addEventListener("change",()=>{if(find.value)selectComp(find.value);});
+  d.append(find);
+  if(!selected){
+    d.append(el("span",{class:"eyebrow",text:"Component"}),el("h3",{text:"Pick a point on the sphere"}),
+      el("p",{class:"desc",text:"Each point is one component from one framework, colored by its source and placed in the region of the themes it addresses. Points that sit close together speak to similar concerns."}),
+      el("p",{class:"note",text:"To argue that two components say the same thing, are related, or pull against each other, drag one point onto the other."}));
+    return;
+  }
+  const c=CI[selected]; const nb=neighbors(c);
+  d.append(el("div",{style:"display:flex;gap:8px;align-items:center"},[dot(c.fw),el("span",{class:"eyebrow",text:FW[c.fw].short+" · "+c.group})]),
+    el("h3",{text:c.name}),el("p",{class:"desc",text:c.desc}),
+    el("div",{class:"values"},c.th.map((t,i)=>el("span",{class:"tag",text:THN[t]+(i?" (secondary)":"")}))));
+  if(selectedOpts().length){ const s=SC[c.id]||0; d.append(el("p",{class:"note",text:"Fit with this context: "+fmt(s)+(isIn(c,s)?" · inside the boundary":" · outside the boundary")})); }
+  // user connections
+  const mineL=Object.values(LINKS).filter(L=>L.a===c.id||L.b===c.id);
+  if(mineL.length){
+    d.append(el("span",{class:"eyebrow",text:"Connections people drew"}));
+    d.append(el("ul",{class:"nblist"},mineL.map(L=>{const o=CI[L.a===c.id?L.b:L.a]; if(!o) return null; return el("li",{},[dot(o.fw),el("div",{},[el("button",{type:"button",class:"linkbtn",onclick:()=>selectComp(o.id)},o.name)," ",...Object.entries(L.kinds).map(([k,n])=>el("span",{class:"kbadge "+k,text:KINDS[k]+(n>1?" ×"+n:"")})),...L.notes.slice(0,3).map(n=>el("div",{class:"why",text:"“"+n+"”"}))])]);})));
+  }
+  d.append(el("span",{class:"eyebrow",text:"Closest in other frameworks"}));
+  if(!nb.length) d.append(el("p",{class:"note",text:"No other framework addresses these themes."}));
+  else d.append(el("ul",{class:"nblist"},nb.slice(0,6).map(x=>el("li",{},[dot(x.o.fw),el("div",{},[el("button",{type:"button",class:"linkbtn",onclick:()=>selectComp(x.o.id)},x.o.name),el("span",{class:"why",text:" · shares "+x.shared.map(t=>THN[t]).join(", ")})])]))));
+  const missing=FWK.filter(f=>f!==c.fw&&!nb.some(x=>x.o.fw===f));
+  if(missing.length) d.append(el("p",{class:"note",text:"Silent on this: "+missing.map(f=>FW[f].short).join(", ")+"."}));
+  // keyboard connect
+  const tsel=el("select",{id:"conn-target","aria-label":"Connect to"},[el("option",{value:""},"Connect to…"),...C.filter(o=>o.id!==c.id).map(o=>el("option",{value:o.id},o.name+" ("+FW[o.fw].short+")"))]);
+  const ksel=el("select",{id:"conn-kind","aria-label":"Kind"},Object.entries(KINDS).map(([k,n])=>el("option",{value:k},n)));
+  d.append(el("div",{style:"display:grid;gap:6px"},[el("span",{class:"eyebrow",text:"Connect without dragging"}),tsel,el("div",{class:"actions"},[ksel,el("button",{type:"button",class:"btn ghost small",onclick:()=>{if(tsel.value)openPop(c.id,tsel.value,CX,CY);}},"Connect")])]));
+}
+
+/* ================= CONTEXT FORM ================= */
+function buildFacets(){
+  for(const [f,def] of Object.entries(FACETS)){
+    const box=$("#"+FACET_FS[f]+" .opts"); box.replaceChildren();
+    for(const o of def.opts) box.append(el("button",{type:"button",class:"opt","data-f":f,"data-k":o.k,"aria-pressed":"false",onclick:()=>toggleFacet(f,o.k)},o.n));
+  }
+}
+function toggleFacet(f,k){
+  const max=FACETS[f].max;
+  if(max===1) state[f]=state[f]===k?null:k;
+  else { const a=state[f]; const i=a.indexOf(k); if(i>-1)a.splice(i,1); else {a.push(k); if(a.length>max)a.shift();} }
+  renderAll();
+}
+function renderBars(){
+  const bars=$("#bars"); bars.replaceChildren();
+  if(!selectedOpts().length){ bars.append(el("p",{class:"note",text:"Choose assumptions or an example to see the weighting."})); return; }
+  for(const t of [...TH].sort((a,b)=>W[b.k]-W[a.k])) bars.append(el("div",{class:"bar"},[el("span",{text:t.n}),el("div",{class:"track"},el("div",{class:"fill",style:"width:"+(W[t.k]*100).toFixed(1)+"%"})),el("span",{class:"v",text:fmt(W[t.k])})]));
+}
+function included(){ return C.filter(c=>isIn(c,SC[c.id]||0)).sort((a,b)=>(SC[b.id]||0)-(SC[a.id]||0)); }
+function renderLists(){
+  const any=selectedOpts().length>0;
+  const inc=any?included():[];
+  $("#mine-title").textContent="AI literacy for "+(state.name.trim()||"your context");
+  const mix=$("#mix"); mix.replaceChildren();
+  const counts=Object.fromEntries(FWK.map(k=>[k,inc.filter(c=>c.fw===k).length]));
+  for(const k of FWK) if(counts[k]) mix.append(el("span",{class:"fw-"+k,style:"width:"+(counts[k]/inc.length*100)+"%",title:FW[k].short+": "+counts[k]}));
+  $("#mix-label").textContent= inc.length? inc.length+" components, drawn from "+FWK.filter(k=>counts[k]).map(k=>FW[k].short+" ("+counts[k]+")").join(", ") : "Choose assumptions, then project, to see what falls inside the boundary.";
+  const mine=$("#mine"); mine.replaceChildren();
+  for(const t of [...TH].sort((a,b)=>W[b.k]-W[a.k])){
+    const items=inc.filter(c=>c.th[0]===t.k); if(!items.length) continue;
+    mine.append(el("div",{class:"mine-group"},[el("h4",{text:t.n}),el("ul",{},items.map(c=>el("li",{},[dot(c.fw),el("span",{},[el("button",{type:"button",class:"linkbtn",style:"font-weight:500",onclick:()=>selectComp(c.id)},c.name),el("span",{class:"note",text:" · "+FW[c.fw].short+(state.pin[c.id]?" · kept by hand":"")})])])))]));
+  }
+  $("#save").disabled=!inc.length;
+  if(selected) renderDetail();
+}
+function updateHint(){
+  const h=$("#hint");
+  h.textContent = T>0.6 ? "Drag a point across the ring to keep or drop it. Drag the ring to move the boundary. Drag one point onto another to connect them." : "Drag empty space to rotate. Drag one point onto another to connect them. Select a point for details.";
+  $("#project-btn").textContent = Ttarget>0.5 ? "Return to the sphere" : "Project onto this context";
+}
+function renderAll(){
+  document.querySelectorAll(".opt").forEach(b=>{const v=state[b.dataset.f];const on=Array.isArray(v)?v.includes(b.dataset.k):v===b.dataset.k;b.setAttribute("aria-pressed",on?"true":"false");});
+  recompute(); renderBars(); renderLists(); updateHint();
+  $("#project-btn").disabled=!selectedOpts().length && Ttarget<0.5;
+}
+function applyPreset(p,project){
+  Object.assign(state,{name:p.name,desc:p.desc,who:p.who,why:[...p.why],how:p.how,val:[...p.val],pin:{},drop:{}});
+  $("#ctx-name").value=p.name; $("#ctx-desc").value=p.desc; renderAll();
+  if(project){ Ttarget=1; updateHint(); }
+}
+function renderToggles(){
+  const box=$("#fwtoggles"); box.replaceChildren();
+  for(const k of FWK) box.append(el("button",{type:"button",class:"fwtog","aria-pressed":fwOn[k]?"true":"false",onclick:()=>{fwOn[k]=!fwOn[k]; if(!FWK.some(x=>fwOn[x])) fwOn[k]=true; renderToggles();}},[dot(k),FW[k].short]));
+}
+function draftText(){
+  const inc=included(); const lines=["AI literacy for "+(state.name.trim()||"Untitled context")];
+  if(state.desc.trim()) lines.push(state.desc.trim());
+  for(const f of Object.keys(FACETS)){const v=[].concat(state[f]||[]).map(k=>FACETS[f].opts.find(o=>o.k===k).n); if(v.length) lines.push(FACET_LABEL[f]+": "+v.join(", "));}
+  lines.push("");
+  for(const t of [...TH].sort((a,b)=>W[b.k]-W[a.k])){const items=inc.filter(c=>c.th[0]===t.k); if(!items.length) continue; lines.push(t.n.toUpperCase()); for(const c of items) lines.push("- "+c.name+" ("+FW[c.fw].short+"): "+c.desc); lines.push("");}
+  return lines.join("\n");
+}
+(function initForm(){
+  buildFacets(); renderToggles();
+  const pr=$("#presets");
+  pr.append(el("span",{class:"eyebrow",text:"Example contexts"}));
+  PRESETS.forEach(p=>pr.append(el("button",{type:"button",class:"preset",onclick:()=>applyPreset(p,true)},p.name)));
+  $("#ctx-name").addEventListener("input",e=>{state.name=e.target.value;renderLists();});
+  $("#ctx-desc").addEventListener("input",e=>{state.desc=e.target.value;});
+  $("#ctxform").addEventListener("submit",e=>e.preventDefault());
+  $("#project-btn").addEventListener("click",()=>{Ttarget=Ttarget>0.5?0:1; lastInteract=performance.now(); updateHint();});
+  const sl=$("#tslider");
+  sl.addEventListener("input",()=>{sliderDragging=true;T=+sl.value;Ttarget=T;lastInteract=performance.now();updateHint();});
+  sl.addEventListener("change",()=>{sliderDragging=false;});
+  $("#copy").addEventListener("click",()=>{const txt=draftText();const ta=$("#copy-fallback");const fb=()=>{ta.hidden=false;ta.value=txt;ta.style.minHeight="200px";ta.focus();ta.select();$("#save-status").textContent="Select all and copy the text above.";};try{navigator.clipboard.writeText(txt).then(()=>{$("#save-status").textContent="Copied.";},fb);}catch(e){fb();}});
+  try{const g=localStorage.getItem("ala-group"); if(g) $("#grp").value=g;}catch(e){}
+  $("#grp").addEventListener("change",e=>{try{localStorage.setItem("ala-group",e.target.value);}catch(_){}});
+  renderAll(); renderDetail();
+})();
+
+/* ================= SHARED DATA ================= */
+let db=null,user=null,myId=null,maps=[],myItems=[],myLinks=[],linkDocs=[],picked=[],names={};
+const localLinks=[]; // used when db is unavailable
+function rebuildLinks(){
+  const all=[]; for(const d of linkDocs) for(const it of d.items) all.push({...it,mine:d.uid===myId});
+  if(!db) for(const it of localLinks) all.push({...it,mine:true});
+  const agg={};
+  for(const it of all){ if(!CI[it.a]||!CI[it.b]||it.a===it.b||!KINDS[it.kind]) continue; const k=pairKey(it.a,it.b); const L=agg[k]||(agg[k]={a:it.a<it.b?it.a:it.b,b:it.a<it.b?it.b:it.a,kinds:{},notes:[],count:0,mine:false}); L.kinds[it.kind]=(L.kinds[it.kind]||0)+1; L.count++; if(it.note) L.notes.push(String(it.note).slice(0,200)); if(it.mine) L.mine=true; }
+  LINKS=agg;
+}
+async function addLink(a,b,kind,note){
+  const item={a,b,kind,note:String(note||"").trim().slice(0,200),at:Date.now(),id:Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+  if(!db||!myId){ localLinks.push(item); rebuildLinks(); renderDetail(); toast("Connection added on this screen."); return; }
+  const items=[item,...myLinks].slice(0,80);
+  try{ await db.collection("links").doc(myId).set({items}); myLinks=items; toast("Connection shared with the class."); }
+  catch(e){ localLinks.push(item); rebuildLinks(); toast(e&&e.code==="invalid_argument"?"You can view connections but not share them. Ask the owner for Contributor access.":"Could not share the connection. Check your connection and try again."); }
+}
+async function deleteLink(id){ const items=myLinks.filter(x=>x.id!==id); try{ await db.collection("links").doc(myId).set({items}); myLinks=items; }catch(e){} }
+function toast(msg){ const s=$("#save-status"); s.textContent=msg; }
+async function resolveNames(uids){ const need=uids.filter(u=>!(u in names)); if(need.length&&user&&user.profiles){ try{ const ps=await user.profiles(need)||{}; for(const u of need) names[u]=(ps[u]&&ps[u].name)||""; }catch(e){} } }
+async function onMaps(snap){
+  const docs=snap.docs.map(d=>({uid:d.id,data:(d.data&&d.data())||{}}));
+  await resolveNames(docs.map(d=>d.uid));
+  const out=[];
+  for(const d of docs){ const items=Array.isArray(d.data.items)?d.data.items:[];
+    for(const it of items){ if(!it||typeof it!=="object") continue;
+      out.push({key:d.uid+"/"+it.id,id:it.id,title:String(it.title||"Untitled").slice(0,100),desc:String(it.desc||"").slice(0,500),by:String(it.label||"").slice(0,60)||names[d.uid]||"Someone",f:it.f||{},w:it.w||{},inc:Array.isArray(it.inc)?it.inc.filter(x=>typeof x==="string"):[],at:it.at||0,mine:d.uid===myId}); }
+    if(d.uid===myId) myItems=items; }
+  out.sort((a,b)=>(b.at||0)-(a.at||0)); maps=out; picked=picked.filter(k=>maps.some(m=>m.key===k)); renderBoard();
+}
+async function onLinks(snap){
+  linkDocs=snap.docs.map(d=>{const data=(d.data&&d.data())||{};const items=(Array.isArray(data.items)?data.items:[]).filter(x=>x&&typeof x==="object").map(x=>({a:String(x.a||""),b:String(x.b||""),kind:String(x.kind||""),note:String(x.note||""),at:x.at||0,id:String(x.id||"")}));return {uid:d.id,items};});
+  const me=linkDocs.find(d=>d.uid===myId); if(me) myLinks=me.items;
+  await resolveNames(linkDocs.map(d=>d.uid));
+  rebuildLinks(); if(selected) renderDetail(); renderBoard();
+}
+let writing=false;
+async function saveDraft(){
+  if(!db||!myId){ toast("Saving to a shared board is not available in this copy. Use Copy as text instead."); return; }
+  const inc=included(); if(!inc.length||writing) return;
+  const item={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:state.name.trim()||"Untitled context",desc:state.desc.trim().slice(0,500),label:$("#grp").value.trim().slice(0,60),
+    f:{who:state.who,why:[...state.why],how:state.how,val:[...state.val]},w:Object.fromEntries(Object.entries(W).map(([k,v])=>[k,Math.round(v*100)/100])),inc:inc.map(c=>c.id),at:Date.now()};
+  const items=[item,...myItems].slice(0,12); writing=true; $("#save").disabled=true; toast("Saving…");
+  try{ await db.collection("maps").doc(myId).set({items}); myItems=items; $("#save-status").replaceChildren("Saved to the board. ",el("button",{type:"button",class:"del",onclick:()=>show("board")},"Open the board")); }
+  catch(e){ toast(e&&e.code==="invalid_argument"?"You can view the board but not save to it. Ask the owner for Contributor access, or copy your framework as text.":"Could not save. Check your connection and try again."); }
+  finally{ writing=false; $("#save").disabled=false; }
+}
+$("#save").addEventListener("click",saveDraft);
+async function deleteMine(id){ const items=myItems.filter(it=>it.id!==id); try{ await db.collection("maps").doc(myId).set({items}); myItems=items; }catch(e){} }
+
+/* ================= BOARD ================= */
+function renderBoard(){
+  const wrap=$("#board-wrap"); wrap.replaceChildren();
+  if(!db){ wrap.append(el("div",{class:"empty-state"},[el("h3",{text:"The shared board runs in the classroom version"}),el("p",{text:"This copy keeps your connections and framework on your own screen. Use Copy as text to share your framework with others."})])); return; }
+  const two=el("div",{class:"two"});
+  // connections
+  const lp=el("div",{class:"panel"},[el("div",{style:"display:grid;gap:4px"},[el("span",{class:"eyebrow",text:"Connections"}),el("h3",{text:"Where people see sameness, relation, and tension"})])]);
+  const Ls=Object.values(LINKS).sort((a,b)=>b.count-a.count);
+  if(!Ls.length) lp.append(el("p",{class:"note",text:"No connections yet. On the sphere, drag one point onto another to add the first."}));
+  else lp.append(el("ul",{class:"links-list"},Ls.slice(0,20).map(L=>el("li",{},[
+    el("div",{class:"pairline"},[dot(CI[L.a].fw),el("button",{type:"button",class:"linkbtn",onclick:()=>{show("sphere");selectComp(L.a);}},CI[L.a].name),el("span",{class:"why",text:"↔"}),dot(CI[L.b].fw),el("button",{type:"button",class:"linkbtn",onclick:()=>{show("sphere");selectComp(L.b);}},CI[L.b].name)]),
+    el("div",{class:"pairline"},Object.entries(L.kinds).map(([k,n])=>el("span",{class:"kbadge "+k,text:KINDS[k]+" ×"+n}))),
+    ...L.notes.slice(0,2).map(n=>el("span",{class:"why",text:"“"+n+"”"}))
+  ]))));
+  if(myLinks.length){ lp.append(el("details",{},[el("summary",{class:"note",text:"Your "+myLinks.length+" connections"}),el("ul",{class:"links-list",style:"margin-top:8px"},myLinks.filter(x=>CI[x.a]&&CI[x.b]).map(x=>el("li",{},[el("span",{},CI[x.a].name+" ↔ "+CI[x.b].name+" · "+(KINDS[x.kind]||x.kind)),el("button",{type:"button",class:"del",onclick:()=>deleteLink(x.id)},"Remove")])))])); }
+  // consensus
+  const cp=el("div",{class:"panel"},[el("div",{style:"display:grid;gap:4px"},[el("span",{class:"eyebrow",text:maps.length+" saved projections"}),el("h3",{text:"What most contexts keep, and what few do"})])]);
+  if(!maps.length) cp.append(el("p",{class:"note",text:"No projections saved yet. Project a context on the sphere and choose Save to shared board."}));
+  else{
+    const freq=Object.fromEntries(C.map(c=>[c.id,0])); for(const m of maps) for(const id of m.inc) if(id in freq) freq[id]++;
+    const top=C.map(c=>({c,n:freq[c.id]})).sort((a,b)=>b.n-a.n); const cl=el("div",{class:"consensus"});
+    [...top.slice(0,6),...top.slice(-4).reverse()].forEach((x,i)=>{ if(i===6) cl.append(el("span",{class:"eyebrow",style:"margin-top:8px",text:"Least often kept"}));
+      cl.append(el("div",{class:"crow2"},[el("span",{class:"nm"},[dot(x.c.fw),x.c.name]),el("div",{class:"track"},el("div",{class:"fill fw-"+x.c.fw,style:"width:"+(x.n/maps.length*100)+"%"})),el("span",{class:"v",text:x.n+"/"+maps.length})])); });
+    cp.append(cl);
+  }
+  two.append(cp,lp); wrap.append(two);
+  if(!maps.length) return;
+  if(picked.length===2){
+    const [a,b]=picked.map(id=>maps.find(m=>m.key===id));
+    if(a&&b){ const A=new Set(a.inc),B=new Set(b.inc); const both=[...A].filter(x=>B.has(x)),oA=[...A].filter(x=>!B.has(x)),oB=[...B].filter(x=>!A.has(x));
+      const lst=ids=>ids.length?el("ul",{},ids.map(id=>CI[id]).filter(Boolean).map(c=>el("li",{},c.name+" ("+FW[c.fw].short+")"))):el("p",{class:"note",text:"None"});
+      wrap.append(el("div",{class:"panel"},[el("div",{style:"display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"},[el("h3",{text:"Comparing two projections"}),el("button",{type:"button",class:"btn ghost small",onclick:()=>{picked=[];renderBoard();}},"Clear comparison")]),
+        el("div",{class:"cmp"},[el("div",{},[el("span",{class:"eyebrow",text:"Only "+a.title}),lst(oA)]),el("div",{},[el("span",{class:"eyebrow",text:"Both"}),lst(both)]),el("div",{},[el("span",{class:"eyebrow",text:"Only "+b.title}),lst(oB)])])])); }
+  } else wrap.append(el("p",{class:"note",text:picked.length?"Pick one more projection to compare.":"Pick any two projections to compare them."}));
+  const grid=el("div",{class:"board"});
+  for(const m of maps){
+    const fp=el("div",{class:"fprint","aria-label":"Theme emphasis"}); TH.forEach(t=>fp.append(el("i",{style:"height:"+Math.max(4,(m.w[t.k]||0)*100)+"%",title:t.n+": "+fmt(m.w[t.k]||0)})));
+    const facets=Object.keys(FACETS).map(f=>{const v=[].concat(m.f[f]||[]).map(k=>{const o=FACETS[f].opts.find(x=>x.k===k);return o?o.n:null;}).filter(Boolean);return v.length?FACET_LABEL[f]+": "+v.join(", "):null;}).filter(Boolean).join(" · ");
+    const isP=picked.includes(m.key);
+    grid.append(el("article",{class:"panel bcard"+(isP?" picked":"")},[
+      el("span",{class:"eyebrow",text:m.by+" · "+m.inc.length+" components"}),el("h3",{text:m.title}),m.desc?el("p",{class:"ctxd",text:m.desc}):null,el("p",{class:"note",text:facets}),
+      fp,el("div",{class:"fplabels","aria-hidden":"true"},TH.map(t=>el("span",{text:t.k.slice(0,3)}))),
+      el("div",{class:"actions"},[el("button",{type:"button",class:"btn ghost small",onclick:()=>{if(isP)picked=picked.filter(x=>x!==m.key);else{picked.push(m.key);if(picked.length>2)picked.shift();}renderBoard();}},isP?"Unpick":"Compare"),
+        el("button",{type:"button",class:"btn ghost small",onclick:()=>{applyPreset({name:m.title,desc:m.desc,who:m.f.who||null,why:m.f.why||[],how:m.f.how||null,val:m.f.val||[]},true);show("sphere");}},"Open on sphere"),
+        m.mine?el("button",{type:"button",class:"del",onclick:()=>deleteMine(m.id)},"Remove"):null])]));
+  }
+  wrap.append(grid,el("p",{class:"note",text:"Bars show each projection's weight on the themes: "+TH.map(t=>t.k.slice(0,3)+" = "+t.n).join(", ")+"."}));
+}
+
+(async function initShared(){
+  renderBoard();
+  if(!window.claude||!window.claude.use) return;
+  try{
+    const [d,u]=await Promise.all([window.claude.use("db"),window.claude.use("user")]);
+    db=d; user=u;
+    if(user){ try{ myId=await user.id(); }catch(e){} }
+    if(!db){ renderBoard(); return; }
+    rebuildLinks(); renderBoard();
+    db.collection("maps").onSnapshot(onMaps,()=>toast("The board stopped updating. Reload the page to reconnect."));
+    db.collection("links").onSnapshot(onLinks,()=>toast("Connections stopped updating. Reload the page to reconnect."));
+  }catch(e){ renderBoard(); }
+})();
+
+/* ================= BOOT ================= */
+show((location.hash||"").slice(1)||"sphere");
+resize();
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>
