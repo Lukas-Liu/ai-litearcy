@@ -16,3 +16,5 @@ Component descriptions are paraphrased. Theme placements and projection weights 
 ## Run it
 
 Open `index.html` in a browser. No build step or server is needed.
+Or access via here: https://lukas-liu.github.io/ai-litearcy/
+
